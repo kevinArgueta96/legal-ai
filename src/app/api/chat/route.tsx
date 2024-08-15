@@ -5,7 +5,6 @@ import { streamText } from 'ai';
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-    console.log(req)
   const { messages } = await req.json();
 
   const result = await streamText({
