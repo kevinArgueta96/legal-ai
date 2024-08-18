@@ -16,8 +16,24 @@ import {
 import { Input } from "@/components/ui/input";
 
 export function CardsChat() {
+
+  const test = async () => {
+    console.log("Start send integration Pinecone");
+    try {
+      const response = await fetch('/api/pinecone');
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
+      }
+      const data = await response.json();
+      console.log(data.vectorStore);
+    } catch (error) {
+      console.error(error);
+      alert("There was an error fetching the data.");
+    }
+  }
+
   const { messages, input, handleInputChange, handleSubmit } = useChat({
-    api: 'api/langchain-template',
+    api: 'api/langchain-pinecone',
     onError: (e) =>{
       console.error(e)
       alert("There was an error executing the chatbot.")
@@ -68,6 +84,7 @@ export function CardsChat() {
           </form>
         </CardFooter>
       </Card>
+      <Button onClick={test}>Enviar</Button>
     </>
   );
 }
