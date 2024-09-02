@@ -5,6 +5,7 @@ import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { pull } from "langchain/hub";
 import { Pinecone as PineconeClient } from "@pinecone-database/pinecone";
+import { getPineconeClient } from '@/lib/pinecone-client'
 
 const embeddings = new OpenAIEmbeddings({
     model: "text-embedding-3-small",

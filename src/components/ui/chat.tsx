@@ -17,15 +17,13 @@ import { Input } from "@/components/ui/input";
 
 export function CardsChat() {
 
-  const test = async () => {
-    console.log("Start send integration Pinecone");
+  const testCallNewFunctions = async () => {
     try {
       const response = await fetch('/api/pinecone');
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
       const data = await response.json();
-      console.log(data.vectorStore);
     } catch (error) {
       console.error(error);
       alert("There was an error fetching the data.");
@@ -83,8 +81,8 @@ export function CardsChat() {
             </Button>
           </form>
         </CardFooter>
+        <Button onClick={testCallNewFunctions}>Cerrar</Button>
       </Card>
-      <Button onClick={test}>Enviar</Button>
     </>
   );
 }
