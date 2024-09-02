@@ -10,6 +10,7 @@ import { PineconeStore } from "@langchain/pinecone";
 import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
 import { Pinecone as PineconeClient } from "@pinecone-database/pinecone";
 import { getPineconeClient } from '@/lib/pinecone-client'
+import { getVectorStore } from '@/lib/vector-store'
 
 export const dynamic = "force-dynamic";
 
@@ -27,18 +28,32 @@ Question: {question}
 Context: {context} @
 Answer:`;
 
+export const QA_TEMPLATE = `You are an enthusiastic AI assistant. Use the following pieces of context to answer the question at the end.
+If you don't know the answer, just say you don't know. DO NOT try to make up an answer.
+If the question is not related to the context, politely respond that you are tuned to only answer questions that are related to the context.
+ONLY RESPONSE IN SPANISH.
+
+Current conversation:
+{chat_history}
+
+{context}
+
+Question: {question}
+Helpful answer in markdown:`;
+
 export async function POST(req: Request) {
   try {
     const pinecone = await getPineconeClient();
     const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX!);
     const embeddings = new OpenAIEmbeddings({
-      // model: "text-embedding-3-small",
+       model: "text-embedding-3-small",
     });
 
-    const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
+    /*const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
       pineconeIndex,
       maxConcurrency: 10,
-    });
+    });*/
+    const vectorStore = await getVectorStore(pinecone);
   
     const { messages } = await req.json();
 
@@ -49,7 +64,7 @@ export async function POST(req: Request) {
       k: 5,
     });
     
-    const prompt = PromptTemplate.fromTemplate(TEMPLATE);
+    const prompt = PromptTemplate.fromTemplate(QA_TEMPLATE);
     const llm = new ChatOpenAI({ model: "gpt-3.5-turbo", temperature: 0 });
   
     const ragChain = await createStuffDocumentsChain({

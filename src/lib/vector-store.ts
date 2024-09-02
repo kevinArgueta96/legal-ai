@@ -2,7 +2,7 @@ import { OpenAIEmbeddings } from "@langchain/openai";
 import { PineconeStore } from "@langchain/pinecone";
 import { Pinecone as PineconeClient } from "@pinecone-database/pinecone";
 
-const PINECONE_INDEX_NAME = process.env.PINECONE_INDEX_NAME!;
+const PINECONE_INDEX_NAME = process.env.PINECONE_INDEX!;
 
 export async function embedAndStoreDocs(
   client: PineconeClient,
