@@ -9,7 +9,7 @@ const pinecone = new PineconeClient();
 async function createIndex() {
   try {
     await pinecone.createIndex({
-      name: process.env.NEW_PINECONE_TEST_CREATE_INDEX!,
+      name: process.env.PINECONE_INDEX!,
       dimension: 1536,
       metric: "cosine",
       spec: {
@@ -34,15 +34,16 @@ async function initPineconeClient() {
     if (existingIndexes.indexes && existingIndexes.indexes.length > 0) {
       // Verificar si el índice existe en la lista
       const indexExists = existingIndexes.indexes.some(index => index.name === pineconeIndex);
-    
+      console.log(indexExists);
       if (!indexExists) {
-        createIndex();
+        await createIndex();
         console.log(`El índice '${pineconeIndex}' fue creado en Pinecone.`);
       } else {
         console.log(`El índice '${pineconeIndex}' se encontró en Pinecone.`);
       }
     } else {
-      console.log("No se encontraron índices en Pinecone.");
+      console.log(`Creando pinecone index`);
+      await createIndex();
     }
     
     return pineconeClient;
