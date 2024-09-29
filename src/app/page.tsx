@@ -1,12 +1,11 @@
-
-import { CardsChat } from "@/components/ui/chat"; // Asegúrate de que la ruta sea correcta
+//import { CardsChat } from "@/components/ui/chat"; // Asegúrate de que la ruta sea correcta
+import { MainLayout } from "@/components/layouts/main-layout"
+import { ChatLayout } from "@/components/layouts/chat-layout"
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div>
-        <CardsChat></CardsChat>
-      </div>
-    </main>
-  );
+    <MainLayout>
+      <ChatLayout />
+    </MainLayout>
+  )
 }
