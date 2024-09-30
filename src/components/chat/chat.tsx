@@ -26,28 +26,55 @@ export function CardsChat() {
 
   const inputLength = input.trim().length;
   const scrollAreaRef = React.useRef<HTMLDivElement>(null);
+  const [isScrolledToBottom, setIsScrolledToBottom] = React.useState(true);
 
-  React.useEffect(() => {
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    const isBottom = scrollHeight - scrollTop <= clientHeight + 10; // Added a small threshold
+    setIsScrolledToBottom(isBottom);
+  };
+
+  const scrollToBottom = () => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
-  }, [messages]);
+  };
+
+  React.useEffect(() => {
+    if (isScrolledToBottom) {
+      scrollToBottom();
+    }
+  }, [messages, isScrolledToBottom]);
+
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    handleSubmit(e);
+    // Force scroll to bottom on submit
+    setTimeout(scrollToBottom, 100);
+  };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto h-[600px] flex flex-col">
+    <Card className="w-full max-w-2xl h-full flex flex-col">
       <CardHeader className="flex flex-row items-center justify-between p-4 border-b">
         <h2 className="text-lg font-semibold">Chat with AI</h2>
       </CardHeader>
-      <CardContent className="flex-grow p-0">
-        <ScrollArea className="h-full" ref={scrollAreaRef}>
+      <CardContent className="flex-grow p-0 overflow-hidden relative">
+        <ScrollArea 
+          className="h-full" 
+          ref={scrollAreaRef}
+          onScroll={handleScroll}
+        >
           <div className="space-y-4 p-4">
-            {messages.map((m) => (
+            {messages.map((m, index) => (
               <div
                 key={m.id}
                 className={cn(
                   "flex items-start space-x-2 transition-all duration-300 ease-in-out",
-                  m.role === "user" ? "justify-end" : "justify-start"
+                  m.role === "user" ? "justify-end" : "justify-start",
+                  index === 0 ? "pt-8" : ""
                 )}
+                style={{
+                  opacity: `${Math.min(1, (index + 1) / 3)}`,
+                }}
               >
                 {m.role !== "user" && (
                   <Avatar>
@@ -76,10 +103,17 @@ export function CardsChat() {
             ))}
           </div>
         </ScrollArea>
+        <div 
+          className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-background to-transparent pointer-events-none"
+          style={{
+            opacity: isScrolledToBottom ? 0 : 1,
+            transition: 'opacity 0.3s ease-in-out',
+          }}
+        />
       </CardContent>
       <CardFooter className="p-4 border-t">
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleFormSubmit}
           className="flex w-full items-center space-x-2"
         >
           <Input

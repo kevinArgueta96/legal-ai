@@ -15,7 +15,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen)
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen overflow-hidden">
       {/* Sidebar */}
       <div
         className={cn(
@@ -61,7 +61,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Main content */}
-      <div className={cn("flex-1 overflow-hidden", sidebarOpen ? "md:ml-64" : "")}>
+      <div className={cn("flex-1 flex flex-col overflow-hidden", sidebarOpen ? "md:ml-64" : "")}>
         <header className="flex items-center justify-between px-6 py-4 border-b">
           <Button variant="ghost" size="icon" onClick={toggleSidebar} aria-label="Toggle sidebar">
             <Menu className="h-6 w-6" />
@@ -70,7 +70,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
             {pathname === "/" ? "Chat Application" : "Dashboard"}
           </h1>
         </header>
-        <main className="p-6">{children}</main>
+        <main className="flex-1 overflow-auto p-6">{children}</main>
       </div>
     </div>
   )
