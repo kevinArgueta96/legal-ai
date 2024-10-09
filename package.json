@@ -12,6 +12,8 @@
   "dependencies": {
     "@ai-sdk/openai": "^0.0.40",
     "@langchain/community": "^0.2.31",
+    "@langchain/core": "^0.3.5",
+    "@langchain/langgraph": "^0.2.10",
     "@langchain/openai": "^0.2.6",
     "@langchain/pinecone": "^0.0.8",
     "@pinecone-database/pinecone": "^3.0.0",
@@ -21,6 +23,7 @@
     "@radix-ui/react-scroll-area": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.2",
+    "@supabase/ssr": "^0.5.1",
     "@supabase/supabase-js": "^2.45.4",
     "ai": "^3.3.0",
     "class-variance-authority": "^0.7.0",

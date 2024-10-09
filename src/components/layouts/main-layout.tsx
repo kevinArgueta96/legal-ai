@@ -9,6 +9,18 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { MessageCircle, LayoutDashboard, Menu, X } from "lucide-react"
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
+  const getTittle = (name: string) => {
+    switch (name) {
+      case "/":
+        return "Chat Application"
+      case "/dashboard":
+        return "Dashboard"
+      case "/langgraph":
+        return "langgraph"
+      default:
+        return "Chat Application"
+    }
+  }
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = React.useState(true)
 
@@ -54,6 +66,16 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                     Dashboard
                   </Link>
                 </Button>
+                <Button
+                  asChild
+                  variant={pathname === "/langgraph" ? "secondary" : "ghost"}
+                  className="w-full justify-start"
+                >
+                  <Link href="/langgraph">
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    L3anggraph
+                  </Link>
+                </Button>
               </div>
             </div>
           </div>
@@ -67,7 +89,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
             <Menu className="h-6 w-6" />
           </Button>
           <h1 className="text-2xl font-bold">
-            {pathname === "/" ? "Chat Application" : "Dashboard"}
+            {getTittle(pathname)}
           </h1>
         </header>
         <main className="flex-1 overflow-auto p-6">{children}</main>
