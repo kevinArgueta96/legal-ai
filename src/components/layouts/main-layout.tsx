@@ -73,7 +73,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                 >
                   <Link href="/langgraph">
                     <LayoutDashboard className="mr-2 h-4 w-4" />
-                    L3anggraph
+                    Langgraph
                   </Link>
                 </Button>
               </div>

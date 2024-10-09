@@ -24,7 +24,8 @@ const MyComponent: React.FC = () => {
   }, []);
 
   if (loading) {
-    return <p>Cargando...</p>;
+    
+    return <MainLayout> <p>Cargando...</p> </MainLayout>;
   }
 
 const testLangchain = async () => {
