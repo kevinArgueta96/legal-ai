@@ -4,16 +4,24 @@ import React from "react";
 import { MainLayout } from "@/components/layouts/main-layout";
 import { useEffect, useState } from "react";
 import { getData, Notes } from "@/lib/supabase/get-data";
+import { getExpenses } from "@/lib/supabase/get-sells";
 
 const MyComponent: React.FC = () => {
   const [data, setData] = useState<Notes[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    async function fetchExpenses() {
+      try {
+        const result = await getExpenses();
+        console.log({result});
+      } catch (error) {
+        console.error("Error al obtener datos:", error);
+      }
+    }
     async function fetchMyData() {
       try {
         const result = await getData();
-        setData(result);
       } catch (error) {
         console.error("Error al obtener datos:", error);
       } finally {
@@ -21,6 +29,7 @@ const MyComponent: React.FC = () => {
       }
     }
     fetchMyData();
+    fetchExpenses()
   }, []);
 
   if (loading) {
@@ -30,7 +39,7 @@ const MyComponent: React.FC = () => {
 
 const testLangchain = async () => {
     const message = "Hola, ¿cómo estás?";
-    const response = await fetch("api/test", {
+    const response = await fetch("api/langgraph", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -52,7 +61,6 @@ const testLangchain = async () => {
       console.log(value, done)
 
       if (value) {
-          // Decodificamos y mostramos el valor del stream
           console.log(decoder.decode(value, { stream: !done }));
       }
   }

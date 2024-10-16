@@ -5,6 +5,13 @@ import { StructuredOutputParser } from "@langchain/core/output_parsers";
 import { RunnableLambda, RunnableSequence } from "@langchain/core/runnables";
 import { z } from "zod";
 
+//FOR THE AGENT:
+import { StateGraph, Annotation } from "@langchain/langgraph";
+import { obtainNegativeValue, obtainPositiveValue, obtainExpensesData } from "../tools/initial-tool";
+import { MemorySaver } from "@langchain/langgraph";
+import { HumanMessage } from "@langchain/core/messages";
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
+
 export const validatePrompt = async (input: string) => {
   const prompt = ChatPromptTemplate.fromTemplate(
     "Said something particular about this word {input}"
@@ -118,7 +125,6 @@ export const usingRunnableSequence = async (input: string) => {
 
   const structuredResultArray = response;
 
-// Recorrer el arreglo y sus facts
 structuredResultArray.forEach((result) => {
   console.log(`Name: ${result.name}`);
   result.facts.forEach((fact, index) => {
@@ -128,3 +134,28 @@ structuredResultArray.forEach((result) => {
 
   return await composedChain.invoke({ word: input });
 };
+
+export const testInitialAgent = async (input: string) => {
+  const agentTools = [
+    //obtainNegativeValue,
+     //obtainPositiveValue,
+      obtainExpensesData ];
+  const agentModel = new ChatOpenAI({ temperature: 0, verbose: true });
+
+  const agentCheckPointer = new MemorySaver();
+  const agent = createReactAgent({
+    llm: agentModel,
+    tools: agentTools,
+    checkPointer: agentCheckPointer,
+  });
+
+const agentFinalState = await agent.invoke(
+  { messages: [new HumanMessage(input)] },
+  { configurable: { thread_id: "42" } },
+);
+
+console.log(
+  agentFinalState.messages[agentFinalState.messages.length - 1].content,
+);
+return agentFinalState.messages[agentFinalState.messages.length - 1].content
+}

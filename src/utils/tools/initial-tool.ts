@@ -1,6 +1,7 @@
 import { tool } from "@langchain/core/tools";
 import { DynamicStructuredTool } from "@langchain/core/tools";
 import { z } from "zod";
+import { getExpenses } from "@/lib/supabase/get-sells";
 
 //SCHEMAS
 const numberSchema = z.object({
@@ -69,4 +70,35 @@ export const dynamicTool = new DynamicStructuredTool({
     }
   );
 
-  
+  export const obtainPositiveValue = tool(
+    async() => {
+      return Math.floor(Math.random() * 100) + 1;
+    },
+    {
+      name: 'obtainPositiveValue',
+      description: 'Obtain a positive value'
+    }
+  );
+
+  export const obtainNegativeValue = tool(
+    async() => {
+      return -Math.floor(Math.random() * 100) - 1;
+    },
+    {
+      name: 'obtainNegativeValue',
+      description: 'Obtain a negative value'
+    }
+  );
+
+  export const obtainExpensesData = tool(
+    async() => {
+      const response = await getExpenses();
+      
+      const dataString = JSON.stringify(response);
+      return dataString;
+    },
+    {
+      name: 'obtainExpensesData',
+      description: 'Obtain the data of the sell products'
+    }
+  );

@@ -2,7 +2,7 @@ import { ChatOpenAI } from "@langchain/openai";
 import { HttpResponseOutputParser } from "langchain/output_parsers";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { multiplyTool,adderTool, dynamicTool, generateRandomInts } from "@/utils/tools/initial-tool";
-import { validatePrompt, createTestChain, structuredParser,usingRunnableSequence } from "@/utils/templates/initial-templates";
+import { validatePrompt, createTestChain, structuredParser,usingRunnableSequence, testInitialAgent } from "@/utils/templates/initial-templates";
 
 export async function POST(req: Request) {
   const { messages } = await req.json();
@@ -25,12 +25,14 @@ export async function POST(req: Request) {
     type: "tool_call",
   });
 
-  const promptFormat = await validatePrompt("hello");
-  const testChain = await createTestChain("Guatemala");
-  const structuredResult = await structuredParser("Audifonos");
-  const structuredResult2 = await usingRunnableSequence("Next js");
+  //const promptFormat = await validatePrompt("hello");
+  //const testChain = await createTestChain("Guatemala");
+  // const structuredResult = await structuredParser("Audifonos");
+  // const structuredResult2 = await usingRunnableSequence("Next js");
+  const agentResult = await testInitialAgent
+  ("What is the name of the product that has more sells and what is the sell of that product and what are the less product that has sells, what year has the most sells and give me the the total sells pear year??");
 
-  console.log({ structuredResult2  });
+  console.log({ agentResult  });
 
   return new Response();
   //return await handler(messages);
