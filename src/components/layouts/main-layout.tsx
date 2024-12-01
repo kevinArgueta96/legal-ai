@@ -6,21 +6,10 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { MessageCircle, LayoutDashboard, Menu, X } from "lucide-react"
+import { Menu, X } from "lucide-react"
+import { routes, getRouteTitle } from "@/utils/routes/routes"
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
-  const getTittle = (name: string) => {
-    switch (name) {
-      case "/":
-        return "Chat Application"
-      case "/dashboard":
-        return "Dashboard"
-      case "/langgraph":
-        return "langgraph"
-      default:
-        return "Chat Application"
-    }
-  }
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = React.useState(true)
 
@@ -46,36 +35,22 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
           <div className="space-y-4 py-4">
             <div className="px-3 py-2">
               <div className="space-y-1">
-                <Button
-                  asChild
-                  variant={pathname === "/" ? "secondary" : "ghost"}
-                  className="w-full justify-start"
-                >
-                  <Link href="/">
-                    <MessageCircle className="mr-2 h-4 w-4" />
-                    Chat
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  variant={pathname === "/dashboard" ? "secondary" : "ghost"}
-                  className="w-full justify-start"
-                >
-                  <Link href="/dashboard">
-                    <LayoutDashboard className="mr-2 h-4 w-4" />
-                    Dashboard
-                  </Link>
-                </Button>
-                <Button
-                  asChild
-                  variant={pathname === "/langgraph" ? "secondary" : "ghost"}
-                  className="w-full justify-start"
-                >
-                  <Link href="/langgraph">
-                    <LayoutDashboard className="mr-2 h-4 w-4" />
-                    Langgraph
-                  </Link>
-                </Button>
+                {routes.map((route) => {
+                  const Icon = route.icon;
+                  return (
+                    <Button
+                      key={route.path}
+                      asChild
+                      variant={pathname === route.path ? "secondary" : "ghost"}
+                      className="w-full justify-start"
+                    >
+                      <Link href={route.path}>
+                        <Icon className="mr-2 h-4 w-4" />
+                        {route.title}
+                      </Link>
+                    </Button>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -89,7 +64,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
             <Menu className="h-6 w-6" />
           </Button>
           <h1 className="text-2xl font-bold">
-            {getTittle(pathname)}
+            {getRouteTitle(pathname)}
           </h1>
         </header>
         <main className="flex-1 overflow-auto p-6">{children}</main>

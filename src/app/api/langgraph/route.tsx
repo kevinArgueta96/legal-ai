@@ -30,7 +30,7 @@ export async function POST(req: Request) {
   // const structuredResult = await structuredParser("Audifonos");
   // const structuredResult2 = await usingRunnableSequence("Next js");
   const agentResult = await testInitialAgent
-  ("What is the name of the product that has more sells and what is the sell of that product and what are the less product that has sells, what year has the most sells and give me the the total sells pear year??");
+  ("What is the name of the product with the highest sales, and what is the total sales figure for that product? Additionally, which product has the lowest sales? Could you also provide the year with the highest sales and the total sales per year?”");
 
   console.log({ agentResult  });
 
