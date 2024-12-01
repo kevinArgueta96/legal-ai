@@ -1,22 +1,44 @@
 "use client";
 
-import * as React from "react";
-import { Send, User, Bot } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
+import { Send, XCircle } from "lucide-react";
 import { useChat } from "ai/react";
 import { Message } from "ai";
+import { ChatMessageBubble } from "./chat-message-bubble";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
 
-export function ChatWindow({ endpoint }: { endpoint: string }) {
-  const { messages, input, handleInputChange, handleSubmit } = useChat({
+export function ChatWindow(props: { 
+  endpoint: string,
+  titleText?: string
+}) {
+  const [sourcesForMessages, setSourcesForMessages] = useState<Record<string, any>>({});
+  const [error, setError] = useState<string | null>(null);
+  const { endpoint } = props;
+  const { messages, input, handleInputChange, handleSubmit } = 
+  useChat({
     api: endpoint,
+    onResponse(response) {
+      setError(null);
+      const sourcesHeader = response.headers.get("x-sources");
+      const sources = sourcesHeader ? JSON.parse(Buffer.from(sourcesHeader, "base64").toString('utf8')) : [];
+      const messageIndexHeader = response.headers.get("x-message-index");
+      if (sources.length && messageIndexHeader !== null) {
+        setSourcesForMessages({...sourcesForMessages, [messageIndexHeader]: sources});
+      }
+    },
+    streamMode: "text",
     onError: (e) => {
       console.error(e);
-      alert("There was an error executing the chatbot.");
+      setError("Lo sentimos, ha ocurrido un error al procesar tu mensaje.");
+      setTimeout(() => setError(null), 5000);
     }
   });
 
   const inputLength = input.trim().length;
-  const scrollAreaRef = React.useRef<HTMLDivElement>(null);
-  const [isScrolledToBottom, setIsScrolledToBottom] = React.useState(true);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [isScrolledToBottom, setIsScrolledToBottom] = useState(true);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
@@ -30,7 +52,7 @@ export function ChatWindow({ endpoint }: { endpoint: string }) {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isScrolledToBottom) {
       scrollToBottom();
     }
@@ -43,85 +65,50 @@ export function ChatWindow({ endpoint }: { endpoint: string }) {
   };
 
   return (
-    <div className="w-full max-w-2xl h-full flex flex-col bg-white rounded-lg shadow-lg">
-      <div className="flex flex-row items-center justify-between p-4 border-b">
-        <h2 className="text-lg font-semibold">Chat with AI</h2>
-      </div>
-      <div className="flex-grow p-0 overflow-hidden relative">
-        <div 
-          className="h-full overflow-auto" 
-          ref={scrollAreaRef}
-          onScroll={handleScroll}
-        >
-          <div className="space-y-4 p-4">
-            {messages.map((m: Message, index) => (
-              <div
-                key={m.id}
-                className={`flex items-start space-x-2 transition-all duration-300 ease-in-out ${
-                  m.role === "user" ? "justify-end" : "justify-start"
-                } ${index === 0 ? "pt-8" : ""}`}
-                style={{
-                  opacity: `${Math.min(1, (index + 1) / 3)}`,
-                }}
-              >
-                {m.role !== "user" && (
-                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                    <Bot size={24} />
-                  </div>
-                )}
-                <div
-                  className={`flex flex-col space-y-2 max-w-[75%] rounded-lg px-3 py-2 text-sm ${
-                    m.role === "user"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100"
-                  }`}
-                >
-                  <span className="font-semibold">
-                    {m.role === "user" ? "You" : "AI"}
-                  </span>
-                  <p>{m.content}</p>
-                </div>
-                {m.role === "user" && (
-                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                    <User size={24} />
-                  </div>
-                )}
-              </div>
-            ))}
+    <Card className="flex flex-col h-full">
+      {error && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50">
+          <div className="bg-destructive/15 text-destructive rounded-lg px-4 py-2 flex items-center gap-2">
+            <XCircle className="h-4 w-4" />
+            <span className="text-sm font-medium">{error}</span>
           </div>
         </div>
+      )}
+
+      <div className="flex-1 overflow-hidden">
         <div 
-          className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-white to-transparent pointer-events-none"
-          style={{
-            opacity: isScrolledToBottom ? 0 : 1,
-            transition: 'opacity 0.3s ease-in-out',
-          }}
-        />
-      </div>
-      <div className="p-4 border-t">
-        <form
-          onSubmit={handleFormSubmit}
-          className="flex w-full items-center space-x-2"
+          ref={scrollAreaRef}
+          onScroll={handleScroll}
+          className="h-full overflow-auto px-4 pt-4"
         >
-          <input
-            type="text"
-            id="message"
-            placeholder="Type your message..."
-            className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            autoComplete="off"
+          {messages.map((message: Message, index) => (
+            <ChatMessageBubble
+              key={message.id}
+              message={message}
+              sources={sourcesForMessages[index]}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="p-4 border-t">
+        <form onSubmit={handleFormSubmit} className="flex gap-2">
+          <Input
+            placeholder="Escribe tu mensaje..."
             value={input}
             onChange={handleInputChange}
+            className="flex-1"
           />
-          <button
-            type="submit"
+          <Button 
+            type="submit" 
+            size="icon"
             disabled={inputLength === 0}
-            className="p-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
           >
             <Send className="h-4 w-4" />
-            <span className="sr-only">Send</span>
-          </button>
+            <span className="sr-only">Enviar mensaje</span>
+          </Button>
         </form>
       </div>
-    </div>
+    </Card>
   );
 }

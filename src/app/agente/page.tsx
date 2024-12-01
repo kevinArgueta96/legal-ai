@@ -54,7 +54,7 @@ export default function AgentePage() {
               marco jurídico guatemalteco.
             </p>
           </div>
-          <ChatWindow endpoint="/api/langchain-pinecone" />
+          <ChatWindow endpoint="/api/langgraph" />
         </div>
 
         {/* Disclaimer */}

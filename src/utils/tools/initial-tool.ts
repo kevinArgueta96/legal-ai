@@ -102,3 +102,13 @@ export const dynamicTool = new DynamicStructuredTool({
       description: 'Obtain the data of the sell products'
     }
   );
+
+  export const obtainUserName = tool (
+    async() => {
+      return 'John Doe';
+    },
+    {
+      name: 'obtainUserName',
+      description: 'Obtain the user name'
+    }
+  )
