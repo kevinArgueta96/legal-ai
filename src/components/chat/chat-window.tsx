@@ -30,7 +30,6 @@ export function ChatWindow(props: {
     },
     streamMode: "text",
     onError: (e) => {
-      console.error(e);
       setError("Lo sentimos, ha ocurrido un error al procesar tu mensaje.");
       setTimeout(() => setError(null), 5000);
     }

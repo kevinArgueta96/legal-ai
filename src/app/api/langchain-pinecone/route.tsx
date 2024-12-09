@@ -1,14 +1,12 @@
 import {
   Message as VercelChatMessage,
   StreamingTextResponse,
-  createStreamDataTransformer,
 } from "ai";
 import { OpenAIEmbeddings, ChatOpenAI } from "@langchain/openai"; 
 import { PromptTemplate } from "@langchain/core/prompts";
 import { HttpResponseOutputParser } from "langchain/output_parsers";
-import { PineconeStore } from "@langchain/pinecone";
+import { StringOutputParser } from "@langchain/core/output_parsers";
 import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
-import { Pinecone as PineconeClient } from "@pinecone-database/pinecone";
 import { getPineconeClient } from '@/lib/pinecone-client'
 import { getVectorStore } from '@/lib/vector-store'
 
@@ -70,12 +68,10 @@ export async function POST(req: Request) {
     const ragChain = await createStuffDocumentsChain({
       llm,
       prompt,
-      outputParser: new HttpResponseOutputParser(),
+      outputParser: new StringOutputParser(),
     });
 
     const retrievedDocs = await retriever.invoke(currentMessageContent);
-
-    console.log("Retrieved docs", retrievedDocs);
 
     const stream = await ragChain.stream({
       question: currentMessageContent,
@@ -83,10 +79,13 @@ export async function POST(req: Request) {
       chat_history: formattedPreviousMessages.join('\n'),
     });
 
+
     // Respond with the stream
-    return new StreamingTextResponse(
-      stream.pipeThrough(createStreamDataTransformer())
-    );
+    // return new StreamingTextResponse(
+    //   stream.pipeThrough(createStreamDataTransformer())
+    // );
+    return new StreamingTextResponse(stream);
+
   } catch (e: any) {
     return Response.json({ error: e.message }, { status: e.status ?? 500 });
   }

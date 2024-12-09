@@ -33,7 +33,7 @@ export const routes: Route[] = [
     description: "Documentación y recursos jurídicos",
   },
   {
-    path: "/agente",
+    path: "/agent",
     title: "Agente Legal",
     icon: Bot,
     description: "Asistente especializado en derecho guatemalteco",

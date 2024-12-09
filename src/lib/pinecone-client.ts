@@ -1,5 +1,4 @@
 import { Pinecone as PineconeClient } from "@pinecone-database/pinecone";
-import { create } from "domain";
 
 let pineconeClientInstance: PineconeClient | null = null;
 
@@ -25,14 +24,13 @@ async function createIndex() {
   }
 }
 
-async function initPineconeClient() {
+export async function initPineconeClient() {
   try {
     const pineconeClient = pinecone;
     const existingIndexes = await pineconeClient.listIndexes();
     const pineconeIndex = process.env.PINECONE_INDEX!;
 
     if (existingIndexes.indexes && existingIndexes.indexes.length > 0) {
-      // Verificar si el índice existe en la lista
       const indexExists = existingIndexes.indexes.some(index => index.name === pineconeIndex);
       console.log(indexExists);
       if (!indexExists) {

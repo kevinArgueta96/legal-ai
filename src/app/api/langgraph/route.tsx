@@ -12,14 +12,17 @@ import {
   SystemMessage,
 } from "@langchain/core/messages";
 
-import { 
+import {
   obtainNegativeValue,
   obtainPositiveValue,
   obtainExpensesData,
-  obtainUserName
- } from "@/utils/tools/initial-tool";
+  obtainUserName,
+} from "@/utils/tools/initial-tool";
+
+import retrivelQaDoc from "@/utils/utils";
 
 export const runtime = "edge";
+export const dynamic = "force-dynamic";
 
 const convertVercelMessageToLangChainMessage = (message: VercelChatMessage) => {
   if (message.role === "user") {
@@ -50,28 +53,25 @@ segun tus intrucciones. Por favor, escribe "Hola" para comenzar.`;
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json(); 
+    const body = await request.json();
 
     const messages = (body.messages ?? [])
       .filter(
         (message: VercelChatMessage) =>
-          message.role === "user" || message.role === "assistant",
-      )
-      .map(convertVercelMessageToLangChainMessage);
-
-
-    const tools = [ 
+          message.role === "user" || message.role === "assistant"
+      ).map(convertVercelMessageToLangChainMessage);
+    
+    const tools = [
       obtainNegativeValue,
       obtainPositiveValue,
       obtainExpensesData,
-      obtainUserName
+      obtainUserName,
     ];
-    
+
     const chat = new ChatOpenAI({
       model: "gpt-4o-mini",
       temperature: 0,
     });
-
 
     const agent = createReactAgent({
       llm: chat,
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
 
     const eventStream = await agent.streamEvents(
       { messages },
-      { version: "v2" },
+      { version: "v2" }
     );
 
     const textEncoder = new TextEncoder();
@@ -98,10 +98,12 @@ export async function POST(request: NextRequest) {
         controller.close();
       },
     });
-    
-    return new StreamingTextResponse(transformStream);
 
+    return new StreamingTextResponse(transformStream);
   } catch (error: any) {
-    return NextResponse.json({error: error.message}, {status: error.status ?? 500});
+    return NextResponse.json(
+      { error: error.message },
+      { status: error.status ?? 500 }
+    );
   }
 }
