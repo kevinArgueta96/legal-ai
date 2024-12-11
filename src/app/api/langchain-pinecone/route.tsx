@@ -4,7 +4,6 @@ import {
 } from "ai";
 import { OpenAIEmbeddings, ChatOpenAI } from "@langchain/openai"; 
 import { PromptTemplate } from "@langchain/core/prompts";
-import { HttpResponseOutputParser } from "langchain/output_parsers";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
 import { getPineconeClient } from '@/lib/pinecone-client'
@@ -79,11 +78,6 @@ export async function POST(req: Request) {
       chat_history: formattedPreviousMessages.join('\n'),
     });
 
-
-    // Respond with the stream
-    // return new StreamingTextResponse(
-    //   stream.pipeThrough(createStreamDataTransformer())
-    // );
     return new StreamingTextResponse(stream);
 
   } catch (e: any) {

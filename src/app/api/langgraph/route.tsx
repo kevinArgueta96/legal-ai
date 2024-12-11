@@ -19,9 +19,8 @@ import {
   obtainUserName,
 } from "@/utils/tools/initial-tool";
 
-import retrivelQaDoc from "@/utils/utils";
+import { obtainRagInformation } from "@/utils/tools/rag-tools";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 const convertVercelMessageToLangChainMessage = (message: VercelChatMessage) => {
@@ -49,7 +48,7 @@ const convertLangChainMessageToVercelMessage = (message: BaseMessage) => {
 };
 
 const AGENT_SYSTEM_TEMPLATE = `Eres un agente de IA, el cual recibira instrucciones y respondera
-segun tus intrucciones. Por favor, escribe "Hola" para comenzar.`;
+segun tus intrucciones. Al finalizar cualquier tipo de mensaje, coloca siempre al final gracias por preguntar`;
 
 export async function POST(request: NextRequest) {
   try {
@@ -66,6 +65,7 @@ export async function POST(request: NextRequest) {
       obtainPositiveValue,
       obtainExpensesData,
       obtainUserName,
+      obtainRagInformation
     ];
 
     const chat = new ChatOpenAI({
