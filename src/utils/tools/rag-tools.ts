@@ -5,7 +5,7 @@ import { Pinecone as PineconeClient } from "@pinecone-database/pinecone";
 import { OpenAIEmbeddings, ChatOpenAI } from "@langchain/openai";
 import { z } from "zod";
 import { PineconeStore } from "@langchain/pinecone";
-import { createStuffDocumentsChain } from "langchain/chains/combine_documents";;
+import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
 
 const PINECONE_INDEX_NAME = process.env.PINECONE_INDEX!;
 
@@ -13,7 +13,6 @@ export const obtainRagInformation = tool(
     async ({ input }: { input: string }) => {
 
         try {
-
 
             console.log(input)
 
@@ -40,21 +39,19 @@ export const obtainRagInformation = tool(
             const retriever = vectorStore.asRetriever({
                 k: 5,
             });
-     
+
             const ragChain = await createStuffDocumentsChain({
                 llm,
                 prompt,
                 outputParser: new StringOutputParser(),
-              });
+            });
 
-              const retrievedDocs = await retriever.invoke(input);
+            const retrievedDocs = await retriever.invoke(input);
 
             const response = await ragChain.invoke({
                 input: input,
                 context: retrievedDocs
             });
-
-            console.log(response)
 
             return response;
         } catch (error) {

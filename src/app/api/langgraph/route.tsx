@@ -6,16 +6,12 @@ import { ChatOpenAI } from "@langchain/openai";
 
 import {
   AIMessage,
-  BaseMessage,
   ChatMessage,
   HumanMessage,
   SystemMessage,
 } from "@langchain/core/messages";
 
 import {
-  obtainNegativeValue,
-  obtainPositiveValue,
-  obtainExpensesData,
   obtainUserName,
 } from "@/utils/tools/initial-tool";
 
@@ -33,20 +29,6 @@ const convertVercelMessageToLangChainMessage = (message: VercelChatMessage) => {
   }
 };
 
-const convertLangChainMessageToVercelMessage = (message: BaseMessage) => {
-  if (message._getType() === "human") {
-    return { content: message.content, role: "user" };
-  } else if (message._getType() === "ai") {
-    return {
-      content: message.content,
-      role: "assistant",
-      tool_calls: (message as AIMessage).tool_calls,
-    };
-  } else {
-    return { content: message.content, role: message._getType() };
-  }
-};
-
 const AGENT_SYSTEM_TEMPLATE = `Eres un agente de IA, el cual recibira instrucciones y respondera
 segun tus intrucciones. Al finalizar cualquier tipo de mensaje, coloca siempre al final gracias por preguntar`;
 
@@ -61,9 +43,6 @@ export async function POST(request: NextRequest) {
       ).map(convertVercelMessageToLangChainMessage);
     
     const tools = [
-      obtainNegativeValue,
-      obtainPositiveValue,
-      obtainExpensesData,
       obtainUserName,
       obtainRagInformation
     ];

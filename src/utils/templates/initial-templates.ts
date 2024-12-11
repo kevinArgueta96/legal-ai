@@ -7,7 +7,6 @@ import { z } from "zod";
 
 //FOR THE AGENT:
 import { StateGraph, Annotation } from "@langchain/langgraph";
-import { obtainNegativeValue, obtainPositiveValue, obtainExpensesData } from "../tools/initial-tool";
 import { MemorySaver } from "@langchain/langgraph";
 import { HumanMessage } from "@langchain/core/messages";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
@@ -78,84 +77,3 @@ export const structuredParser = async (category: string) => {
 
   return await composedChain.invoke({ topic: category });
 };
-
-export const usingRunnableSequence = async (input: string) => {
-  const llm = new ChatOpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-    temperature: 0.5,
-    verbose: false,
-  });
-
-  const prompt = ChatPromptTemplate.fromMessages([
-    ["system", "Give me 2 words that are related to the word {word} and for anyword giveme 2 defines of the word, exaple: word:(define1:...., define2:....)"],
-    ["human", "{word}"],
-  ]);
-
-  const chain = prompt.pipe(llm).pipe(new StringOutputParser());
-
-  const evaluationPrompt = ChatPromptTemplate.fromTemplate(`
-    Given the next list {list} separete the information using the provided format
-    Formatting Instructions: {format_instructions}`);
-
-  const outputParser = StructuredOutputParser.fromZodSchema(
-    z.object({
-        name: z.string().describe("The fact"),
-        facts: z.array(z.string()).describe("The list of facts")
-    })
-  )
-
-  const multipleOutputParser = StructuredOutputParser.fromZodSchema(
-    z.array(
-      z.object({
-        name: z.string().describe("The fact"), // El nombre del tema (por ejemplo, React, Server-side rendering)
-        facts: z.array(z.string()).describe("The list of facts") // Lista de hechos
-      })
-    )
-  );
-
-  const composedChain = RunnableSequence.from([
-    chain,
-    (result: string) => ({ list: result, format_instructions: multipleOutputParser.getFormatInstructions() }),
-    evaluationPrompt,
-    llm,
-    multipleOutputParser,
-  ]);
-
-  const response = await composedChain.invoke({ word: input });
-
-  const structuredResultArray = response;
-
-structuredResultArray.forEach((result) => {
-  console.log(`Name: ${result.name}`);
-  result.facts.forEach((fact, index) => {
-    console.log(`Fact ${index + 1}: ${fact}`);
-  });
-});
-
-  return await composedChain.invoke({ word: input });
-};
-
-export const testInitialAgent = async (input: string) => {
-  const agentTools = [
-    //obtainNegativeValue,
-     //obtainPositiveValue,
-      obtainExpensesData ];
-  const agentModel = new ChatOpenAI({ temperature: 0, verbose: true });
-
-  const agentCheckPointer = new MemorySaver();
-  const agent = createReactAgent({
-    llm: agentModel,
-    tools: agentTools,
-    checkPointer: agentCheckPointer,
-  });
-
-const agentFinalState = await agent.invoke(
-  { messages: [new HumanMessage(input)] },
-  { configurable: { thread_id: "42" } },
-);
-
-console.log(
-  agentFinalState.messages[agentFinalState.messages.length - 1].content,
-);
-return agentFinalState.messages[agentFinalState.messages.length - 1].content
-}

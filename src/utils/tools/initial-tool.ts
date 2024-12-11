@@ -70,39 +70,6 @@ export const generateRandomInts = tool(
   }
 );
 
-export const obtainPositiveValue = tool(
-  async () => {
-    return Math.floor(Math.random() * 100) + 1;
-  },
-  {
-    name: 'obtainPositiveValue',
-    description: 'Obtain a positive value'
-  }
-);
-
-export const obtainNegativeValue = tool(
-  async () => {
-    return -Math.floor(Math.random() * 100) - 1;
-  },
-  {
-    name: 'obtainNegativeValue',
-    description: 'Obtain a negative value'
-  }
-);
-
-export const obtainExpensesData = tool(
-  async () => {
-    const response = await getExpenses();
-
-    const dataString = JSON.stringify(response);
-    return dataString;
-  },
-  {
-    name: 'obtainExpensesData',
-    description: 'Obtain the data of the sell products'
-  }
-);
-
 export const obtainUserName = tool(
   async () => {
     return 'Walter Argueta';
