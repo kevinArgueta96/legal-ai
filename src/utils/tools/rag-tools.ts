@@ -23,6 +23,20 @@ export const obtainRagInformation = tool(
            address the user's query. Ensure that the delivered information directly addresses
             the user's input.`)
 
+           const similarityQueries = PromptTemplate.fromTemplate(`
+                You are an expert in retrieving relevant information to answer questions in a search context.
+
+                Your task is to generate **three specific and related queries** based on the following user input to maximize the likelihood of retrieving the most relevant documents.
+
+                **User Input:** {input}
+
+                **Instructions:**
+                1. Analyze the input to identify the topic, context, and keywords.
+                2. Generate three different but related queries that cover variations in phrasing and context.
+                3. Ensure the queries include combinations of both specific and generic keywords.
+                `)
+
+
             const pinecone = new PineconeClient();
 
             const embeddings = new OpenAIEmbeddings();
@@ -46,7 +60,11 @@ export const obtainRagInformation = tool(
                 outputParser: new StringOutputParser(),
             });
 
-            const retrievedDocs = await retriever.invoke(input);
+            const generateSimilarityQueries = await similarityQueries.pipe(llm).pipe(new StringOutputParser()).invoke({input})
+
+            const retrievedDocs = await retriever.invoke(generateSimilarityQueries);
+
+            console.log({retrievedDocs,input,generateSimilarityQueries})
 
             const response = await ragChain.invoke({
                 input: input,
@@ -62,7 +80,7 @@ export const obtainRagInformation = tool(
         name: "obtainRagInformation",
         description: "Retrieve the most relevant information to provide context about Guatemalan laws and effectively answer the user's query. This tool can only be invoked a maximum of three times.",
         schema: z.object({
-            input: z.string().describe("The question to obtain information")
+            input: z.string().describe("The specific question of the user with the most relevant information for obtain information in vector store")
         }),
     }
 );
